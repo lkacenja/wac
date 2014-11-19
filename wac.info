@@ -1,0 +1,8 @@
+name = Web Accessible Charts
+description = Provides a chart entity that creates web accessible charts via d3.js.
+core = 7.x
+dependencies[] = text
+dependencies[] = list
+dependencies[] = options
+dependencies[] = file
+dependencies[] = entity

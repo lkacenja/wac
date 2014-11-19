@@ -1,0 +1,95 @@
+<?php
+
+function wac_schema() {
+  $schema = array();
+  $schema['wac'] = array(
+    'description' => 'The base table for the Chart entity',
+    'fields' => array(
+      'cid' => array(
+        'description' => 'Primary key of the Chart entity',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'User that created this Chart entity',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The title of this chart, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => 'Bundle of this chart.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the Chart is published (visible to non-administrators).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  $schema['wac_type'] = array(
+    'description' => 'Bundle table for the Chart entity',
+    'fields' => array(
+      'type' => array(
+        'description' => 'Machine name chart type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+     'title' => array(
+        'description' => 'Label chart type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('type'),
+  );
+  return $schema;
+}
+
+function wac_install() {
+  $bundles = wac_get_chart_types();
+  module_load_include('inc', 'wac', 'includes/wac.fields');
+  $fields = wac_chart_fields();
+  foreach ($bundles AS $type => $title) {
+    $record = new stdClass();
+    $record->type = $type;
+    $record->title = $title;
+    drupal_write_record('wac_type', $record);
+    // After saving bundle attach fields
+    wac_save_bundle_fields($type, $fields);
+  }  
+}
+
+function wac_save_bundle_fields($bundle, $fields) {
+  if (!empty($fields[$bundle])) {
+    foreach ($fields[$bundle] AS $field) {
+      $info = field_info_field($field['field']['field_name']);
+      if (empty($info)) {
+        field_create_field($field['field']);
+      }
+      $instance = field_info_instance('chart', $field['field']['field_name'], $bundle);
+      if (empty($instance)) {
+        field_create_instance($field['instance']);
+      }
+    }
+  }
+}
