@@ -49,24 +49,27 @@
         .orient("left");
     },
     render: function() {
-      var _this = this;
+      var content,  _this = this;
       this.offsetWrapper = this.svg.append("g")
         .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
       // Axes
       this.offsetWrapper.append("g")
         .attr("class", "axis x-axis")
         .attr("transform", "translate(0," + this.height + ")")
-        .call(this.xAxis);
+        .call(this.xAxis)
+        .attr("aria-hidden", "true");
       this.offsetWrapper.append("g")
         .attr("class", "axis y-axis")
-        .call(this.yAxis);
+        .call(this.yAxis)
+        .attr("aria-hidden", "true");
       // Data
-      this.offsetWrapper.append("g")
+      content = this.offsetWrapper.append("g")
         .attr("class", "content")
-        this.offsetWrapper.selectAll('.bar')
+      content.selectAll('.bar')
         .data(this.data)
         .enter()
         .append("rect")
+        .attr("class", 'bar')
         .attr("x", function(d) { 
           var key = _this.header[_this.dictionary.x_axis[0]];
           return _this.x(d[key]);
@@ -93,6 +96,8 @@
             return d[key];
           }
         );
+        content.selectAll('.bar')
+          .append('desc').text('');
     } 
   });
 })(jQuery, Drupal, this, this.document);
