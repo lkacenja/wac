@@ -62,14 +62,8 @@
           var classes = ["arc"];
           classes.push(_this.scale(d.data[dataKey]));
           return classes.join(" ");
-        });
-      arcs.append("text")
-        .attr("transform", function(d) { return "translate(" + _this.arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return d.data[labelKey]; });
-      // Attach alt data points.
-      arcs.attr("aria-labelledby", "title desc")
+        })
+        .attr("aria-labelledby", "title desc")
         .append("title").text(
           function(d) {
             return d.data[altKey];
@@ -80,6 +74,14 @@
             return d.data[altKey];
           }
         );
+      arcs.selectAll(".arc")
+        .append("desc");
+      arcs.append("text")
+        .attr("transform", function(d) { return "translate(" + _this.arc.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d.data[labelKey]; })
+        .attr("aria-hidden", "true");
     }
   });
 })(jQuery, Drupal, this, this.document);
