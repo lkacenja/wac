@@ -1,4 +1,5 @@
 <?php
+
 require_once(drupal_get_path('module', 'wac') . '/includes/wac.field.inc');
 
 function wac_permission() {
@@ -162,6 +163,7 @@ function wac_theme($existing, $type, $theme, $path) {
 
 function template_preprocess_wac_chart_entity(&$variables) {
   $chart = $variables['elements']['#chart'];
+  $langcode = $variables['elements']['#language'];
   $variables['view_mode'] = $variables['elements']['#view_mode'];
   // Helpful $content variable for templates.
   $variables += array('content' => array());
@@ -171,7 +173,8 @@ function template_preprocess_wac_chart_entity(&$variables) {
   // Long last add the chart itself.
   $variables['content']['chart'] = array(
     '#theme' => 'wac_chart',
-    '#chart' => $chart
+    '#chart' => $chart,
+    '#language' => $langcode
   );
   // Make the field variables available with the appropriate language.
   field_attach_preprocess('chart', $chart, $variables['content'], $variables);
@@ -181,33 +184,58 @@ function template_preprocess_wac_chart_entity(&$variables) {
 
 function template_preprocess_wac_chart(&$variables) {
   $chart = $variables['elements']['#chart'];
+  $langcode = $variables['elements']['#language'];
   $variables['chart_id'] = 'wac-' . $chart->cid;
   // For D3 do it this way so we can set the error easily.
   wac_chart_add_d3_library();
   // All we need to do is include a bunch of files settings
   $path = drupal_get_path('module', 'wac');
+  drupal_add_css($path . '/theme/css/wac.css', array('type' => 'file', 'group' => CSS_DEFAULT));
+  drupal_add_js($path . '/theme/js/class.js', array('type' => 'file', 'group' => JS_DEFAULT)); 
   drupal_add_js($path . '/theme/js/chart-base.js', array('type' => 'file', 'group' => JS_DEFAULT)); 
   switch($chart->type) {
     case 'bar':
+      $chart->js_class = 'ChartBar';
       drupal_add_js($path . '/theme/js/chart-bar.js', array('type' => 'file', 'group' => JS_DEFAULT));
       break;
     case 'line':
+      $chart->js_class = 'ChartLine';
       drupal_add_js($path . '/theme/js/chart-line.js', array('type' => 'file', 'group' => JS_DEFAULT));
       break;
     case 'pie':
+      $chart->js_class = 'ChartPie';
       drupal_add_js($path . '/theme/js/chart-pie.js', array('type' => 'file', 'group' => JS_DEFAULT));
       break;
   }
-  wac_chart_add_settings($chart, $variables['chart_id']);
+  drupal_add_js($path . '/theme/js/chart-behavior.js', array('type' => 'file', 'group' => JS_DEFAULT));
+  wac_chart_add_settings($chart, $variables['chart_id'], $langcode);
 }
 
-function wac_chart_add_settings($chart, $id) {
+function wac_chart_add_settings($chart, $id, $l) {
   $settings = array();
   $settings['id'] = $id;
+  $settings['class'] = $chart->js_class;
   // Dictionary acts as lookup for chart type.
   $settings['dictionary'] = array();
+  if (!function_exists('wac_chart_fields')) {
+    require_once(drupal_get_path('module', 'wac') . '/includes/wac.fields.inc');
+  }
+  $fields = wac_chart_fields();
+  // We don't need the file
+  unset($fields[$chart->type]['data_file']);
+  $fields = array_keys($fields[$chart->type]);
+  foreach($fields AS $key) {
+    $settings['dictionary'][$key] = array();
+    if (!empty($chart->{$key}[$l])) {
+      foreach ($chart->{$key}[$l] AS $item) {
+        $settings['dictionary'][$key][] = $item['value'];
+      }
+    }
+  }
+  $settings['dictionary']['title'] = $chart->title;
+  $settings['dictionary']['type'] = $chart->type;
   // Data contains the actual data to render.
-  $settings['data'] = array();
+  $settings['data'] = wac_get_data_from_file($chart->data_file[$l][0]);
   drupal_add_js(array('wac' => array($settings)), array('type' => 'setting'));
 }
 
@@ -227,7 +255,8 @@ function wac_chart_view_multiple($charts, $view_mode = 'full', $langcode = NULL)
 
 function wac_chart_view($chart, $view_mode = 'full', $langcode = NULL) {
   if (!isset($langcode)) {
-    $langcode = $GLOBALS['language_content']->language;
+    // @TODO inestigate what should be done here.
+    $langcode = LANGUAGE_NONE;
   }
   wac_chart_build_content($chart, $view_mode, $langcode);
   $build = $chart->content;
@@ -313,36 +342,45 @@ function wac_chart_add_d3_library() {
   }
 }
 
-function wac_get_data_keys_from_file($file) {
+function wac_get_data_from_file($file) {
+  if (is_array($file)) {
+    $file = (object) $file;
+  }
   $path = file_create_url($file->uri);
   $ext = substr($path, strrpos($path, '.') + 1, strlen($path));
   $handle = fopen($path, "r");
   if ($handle !== FALSE) {
     switch ($ext) {
       case 'csv':
-        $data = wac_get_data_keys_from_delimiter_seperated_value_file($handle, ','); 
+        $data = wac_get_data_from_delimiter_seperated_value_file($handle, ','); 
         break;
       case 'tsv':
-        $data = wac_get_data_keys_from_delimiter_seperated_value_file($handle, '	');
+        $data = wac_get_data_from_delimiter_seperated_value_file($handle, '	');
         break;
       case 'json':
-        $data = wac_get_data_keys_from_json_file($handle);
+        $data = wac_get_data_from_json_file($handle);
         break;
     }
     fclose($handle);
   }
-  $data = wac_data_keys_to_options($data);
   return $data;
 }
 
-function wac_get_data_keys_from_delimiter_seperated_value_file($handle, $delimiter) {
-  while (($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
-    return $data;
-  }
-  return FALSE;
+function wac_get_data_keys_from_file($file) {
+  $data = wac_get_data_from_file($file);
+  $data = wac_data_keys_to_options($data[0]);
+  return $data; 
 }
 
-function wac_get_data_keys_from_json_file($handle) {
+function wac_get_data_from_delimiter_seperated_value_file($handle, $delimiter) {
+  $output = array();
+  while (($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
+    $output[] = $data;
+  }
+  return $output;
+}
+
+function wac_get_data_from_json_file($handle) {
   while (!feof($handle)) {
     $data = fgets($handle);
     return (array) json_decode($handle);
