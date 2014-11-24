@@ -13,7 +13,7 @@
     margin: null,
     setup: function(data) {
       // Call the base classes setup defining the svg.
-      this._super(data);
+      this._super();
       // Set svg width/height 
       this.margin = {top: 0, right: 0, bottom: 25, left: 40};
       this.width = parseInt(this.el.style('width'), 10) - this.margin.left - this.margin.right;
