@@ -121,12 +121,12 @@ function wac_chart_fields() {
     'field_name' => 'percent',
     'type' => 'text',
   );
-  $fields['pie']['percent']['instance'] = array(
-    'field_name' => 'percent',
+  $fields['pie']['value']['instance'] = array(
+    'field_name' => 'value',
     'entity_type' => 'chart',
     'bundle' => 'pie',
-    'label' => t('Percent Field'),
-    'description' => t('Field to total and use for calculating percent.'),
+    'label' => t('Value Field'),
+    'description' => t('Field to use as value in chart.'),
     'required' => TRUE,
     'widget' => array(
       'type' => 'text_textfield',
@@ -208,11 +208,4 @@ function wac_fields_from_data() {
     'percent',
     'pie_label'
   );
-}
-
-function wac_field_convert_data_field($field, $data) {
-  $field[LANGUAGE_NONE][0]['value']['#type'] = 'select';
-  $field[LANGUAGE_NONE][0]['value']['#options'] = $data;
-  $field[LANGUAGE_NONE][0]['value']['#size'] = 1;
-  return $field;
 }

@@ -3,44 +3,56 @@
   height: 400px;
 }
 
+.domain {
+  fill: #fa6900;
+}
+
+.bar {
+  fill: #c51b7d;
+}
+
 .arc {
   stroke: #FFFFFF;
 }
 
 .arc-0 {
-  fill: rgb(247,251,255);
+  fill: #4d9221;
 }
 
 .arc-1 {
-  fill: rgb(222,235,247);
+  fill: #c51b7d;
 }
 
 .arc-2 {
-  fill: rgb(198,219,239);
+  fill: #de77ae;
 }
 
 .arc-3 {
-  fill: rgb(158,202,225);
+  fill: #f1b6da;
 }
 
 .arc-4 {
-  fill: rgb(107,174,214);
+  fill: #fde0ef;
 }
 
 .arc-5 {
-  fill: rgb(66,146,198);
+  fill: #f7f7f7;
 }
 
 .arc-6 {
-  fill: rgb(33,113,181);
+  fill: #e6f5d0;
 }
 
 .arc-7 {
-  fill: rgb(8,81,156);
+  fill: #b8e186;
 }
 
 .arc-8 {
-  fill: rgb(8,48,107);
+  fill: #7fbc41;
+}
+
+.arc-9 {
+  fill: #276419;
 }
 
 .line {
