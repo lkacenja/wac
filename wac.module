@@ -1,7 +1,5 @@
 <?php
 
-require_once(drupal_get_path('module', 'wac') . '/includes/wac.field.inc');
-
 function wac_permission() {
   return array(
     'view web accessable charts' => array(
@@ -114,13 +112,6 @@ function wac_menu() {
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_NORMAL_ITEM
-  );
-  $items['wac/file/ajax'] = array(
-    'page callback' => 'wac_file_ajax_upload',
-    'delivery callback' => 'ajax_deliver',
-    'access arguments' => array('access content'),
-    'theme callback' => 'ajax_base_page_theme',
-    'type' => MENU_CALLBACK,
   );
   return $items;
 }
@@ -366,12 +357,6 @@ function wac_get_data_from_file($file) {
   return $data;
 }
 
-function wac_get_data_keys_from_file($file) {
-  $data = wac_get_data_from_file($file);
-  $data = wac_data_keys_to_options($data[0]);
-  return $data; 
-}
-
 function wac_get_data_from_delimiter_seperated_value_file($handle, $delimiter) {
   $output = array();
   while (($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
@@ -386,57 +371,4 @@ function wac_get_data_from_json_file($handle) {
     return (array) json_decode($handle);
   }
   return FALSE;
-}
-
-function wac_data_keys_to_options($data) {
-  $options = array();
-  foreach ($data AS $value) {
-    $options[$value] = $value;
-  }
-  return $options;
-}
-
-function wac_file_ajax_upload() {
-  $args = func_get_args();  
-  $commands = call_user_func_array('file_ajax_upload', $args);
-  list($form, $form_state, $form_id, $form_build_id, $base_commands) = ajax_get_form();
-  $commands = array_merge($base_commands, $commands);
-  if (!empty($form['#entity'])) {
-    $field_info = field_info_instances($form['#entity_type'], $form['#bundle']);
-    $wac_fields = array_filter($field_info, 'wac_field_is_wac_text_from_file');
-    if (!empty($wac_fields)) {
-      foreach($wac_fields AS $key => $field) {
-        if (!empty($field['widget']['settings']['wac_text_from_file_file_field'])) {
-          $file_field_key = $field['widget']['settings']['wac_text_from_file_file_field'];
-          if (!empty($form[$file_field_key]) && !empty($form_state['field'][$file_field_key])) {
-            if (isset($form['#entity']->language)) {
-              $l = $form['#entity']->language;
-            }
-            else {
-              $l = !empty($form[$file_field_key]['#language']) ? $form[$file_field_key]['#language'] : LANGUAGE_NONE;
-            }
-            $fid = $form_state['field'][$file_field_key][$l]['items'][0]['fid'];
-            $file = file_load($fid);
-            $data = wac_get_data_keys_from_file($file);
-            $form[$key] = wac_add_options_to_wac_text_from_file($key, $form[$key], $data, $l); 
-            $selector = '.' . implode($form[$key]['#attributes']['class'], '.');
-            $html = drupal_render($form[$key]);
-            $commands['#commands'][] = ajax_command_replace($selector, $html);
-          }
-        }
-      }
-    } 
-  }
-  return $commands;
-}
-
-function wac_add_options_to_wac_text_from_file($field_name, $field, $options, $l = LANGUAGE_NONE) {
-  foreach ($field[$l] AS $delta => $item) {
-    if (is_numeric($delta)) {
-      $field[$l][$delta]['value']['#options'] = $options;
-      $field[$l][$delta]['value']['#disabled'] = empty($options) ? TRUE : FALSE; 
-      $field[$l][$delta]['value']['#attributes']['name'] = $field_name . "[$l][$delta][value]";
-    }
-  }
-  return $field;
 }

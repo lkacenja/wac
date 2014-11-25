@@ -16,13 +16,6 @@ function wac_chart_add($form, $form_state, $chart) {
   $form_state['storage'] = array('chart' => $chart);
   wac_chart_base_form($form, $form_state);
   field_attach_form('chart', $chart, $form, $form_state);
-  if (!empty($form['data_file'])) {
-    foreach ($form['data_file'][LANGUAGE_NONE] as $key => $file_field) {
-      if (is_numeric($key)) {
-        $form['data_file'][LANGUAGE_NONE][$key]['#process'][] = 'wac_file_field_process';
-      }
-    }
-  }
   return $form;
 }
 
@@ -65,7 +58,6 @@ function wac_chart_validate($form, &$form_state) {
 }
 
 function wac_chart_submit($form, $form_state) {
-  dsm($form_state);
   $chart = $form_state['storage']['chart'];
   $chart->title = $form_state['values']['title'];
   $chart->status = $form_state['values']['status'];
@@ -104,11 +96,4 @@ function wac_chart_delete_confirm($form = array(), $form_state, $chart) {
 function wac_chart_delete_confirm_submit($form, $form_state) {
   $chart = json_decode($form['chart']['#value']);
   wac_chart_entity_delete($chart); 
-}
-
-function wac_file_field_process($element, &$form_state, $form) {
-  if (!empty($element['upload_button'])) {
-    $element['upload_button']['#ajax']['path'] = str_replace('file/ajax', 'wac/file/ajax', $element['upload_button']['#ajax']['path']);
-  }
-  return $element;
 }
