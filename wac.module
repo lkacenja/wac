@@ -4,7 +4,17 @@ function wac_permission() {
   return array(
     'view web accessable charts' => array(
       'title' => t('View web accessible charts'),
-      'description' => t('View any charts created by the Web Accesible Charts module.'),
+      'description' => t('View any published charts or own unpublished charts created by the Web Accesible Charts module.'),
+    ),
+    'create web accessible charts' => array(
+      'title' => t('Create Web Accessible Charts'),
+      'description' => t('Basic permission for creating charts.')
+    ),
+    'edit own web accessible charts' => array(
+      'title' => t('Edit own web accessible charts'),
+    ),
+    'delete own web accessible charts' => array(
+      'title' => t('Delete own web accessible charts'),
     ),
     'administer web accessible charts' => array(
       'title' => t('Administer web accessible charts.'),
@@ -67,21 +77,24 @@ function wac_menu() {
     'title' => 'Chart',
     'page callback' => 'wac_chart_entity_view',
     'page arguments' => array(1),
-    'access arguments' => array('view web accessable charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'view'),
     'type' => MENU_NORMAL_ITEM
   );
   $items['chart/%wac_chart_entity/view'] = array(
     'title' => 'View Chart',
     'page callback' => 'wac_chart_entity_view',
     'page arguments' => array(1),
-    'access arguments' => array('view web accessable charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'view'),
     'type' => MENU_LOCAL_TASK,
     'weight' => 1
   );
   $items['chart/add'] = array(
     'title' => 'Create a Web Accessible Chart',
     'page callback' => 'wac_chart_add_page',
-    'access arguments' => array('administer web accessible charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'add'),
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_NORMAL_ITEM
@@ -90,7 +103,8 @@ function wac_menu() {
     'title' => 'Chart',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wac_chart_add', 2),
-    'access arguments' => array('administer web accessible charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'add'),
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_NORMAL_ITEM
@@ -99,7 +113,8 @@ function wac_menu() {
     'title' => 'Edit Chart',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wac_chart_add', 1),
-    'access arguments' => array('administer web accessible charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'edit'),
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_LOCAL_TASK,
@@ -109,7 +124,8 @@ function wac_menu() {
     'title' => 'Delete Chart',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wac_chart_delete_confirm', 1),
-    'access arguments' => array('administer web accessible charts'),
+    'access callback' => 'wac_access_check',
+    'access arguments' => array(1, 'delete'),
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_LOCAL_TASK,
@@ -125,6 +141,33 @@ function wac_menu() {
     'type' => MENU_NORMAL_ITEM
   );
   return $items;
+}
+
+function wac_access_check($chart, $op) {
+  if (user_access('administer web accessible charts')) {
+    return TRUE;
+  }
+  global $user;
+  switch($op) {
+    case 'view':
+      if ($chart->status == 1 || ($chart->status != 1 && $chart->uid == $user->uid)) {
+        return user_access('view web accessable charts');
+      }
+    break;
+    case 'add':
+      return user_access('create web accessible charts');
+    break;
+    case 'edit':
+      if ($chart->uid == $user->uid) {
+        return user_access('edit own web accessible charts');
+      }
+    break;
+    case 'delete':
+      if ($chart->uid == $user->uid) {
+        return user_access('delete own web accessible charts'); 
+      }
+    break;
+  }
 }
 
 function wac_d3_lib() {
