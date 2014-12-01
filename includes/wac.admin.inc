@@ -1,5 +1,50 @@
 <?php
 
+function wac_chart_add_page() {
+  $bundles = wac_get_chart_types();
+  $links = array();
+  foreach ($bundles AS $bundle => $item) {
+    $links[] = l($item['title'], 'chart/add/' . $bundle) . '<p>' .$item['description'] . '</p>';
+  }
+  return array('#theme' => 'item_list','#items' => $links);
+}
+
+function wac_admin_charts() {
+  $header = array(
+    array('data' => t('Title'), 'field' => 'title'),
+    array('data' => t('Status'), 'field' => 'status'),
+    array('data' => t('Type'), 'field' => 'type'),
+    array('data' => t('Created'), 'field' => 'created', 'sort' => 'asc'),
+    array('data' => t('Operations')),
+  );
+  $query = db_select('wac', 'w')->extend('TableSort')->extend('PagerDefault')->limit(25);
+  $query->fields('w', array('cid', 'title', 'status', 'type', 'created'));
+  $query->orderByHeader($header);
+  $result = $query->execute();
+  $rows = array();
+  $options = array('query' => array('destination' => $_GET['q']));
+  foreach ($result as $row) {
+    $data = array(
+      l($row->title, 'chart/' . $row->cid),
+      $row->status == 1 ? 'published' : 'not published',
+      $row->type,
+      date('m/d/Y g:i', $row->created),
+      l(t('Edit'), 'chart/' . $row->cid . '/edit', $options) . ' ' . l(t('Delete'), 'chart/' . $row->cid . '/delete', $options)
+    );
+    $rows[] = array('data' => $data);
+  }
+  $make = l(t('Make one now.'), 'chart/add');
+  $output = array();
+  $output['table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#empty' => t('No charts have been created yet. !make', array('!make' => $make)),
+  );
+  $output['table_pager'] = array('#theme' => 'pager');
+  return $output;
+}
+
 function wac_chart_type_admin_form() {
 
   return array();

@@ -41,7 +41,7 @@ function wac_entity_info() {
   $bundles = wac_get_chart_types();
   foreach ($bundles AS $key => $name) {
     $info['chart']['bundles'][$key] = array(
-      'label' => $name,
+      'label' => $name['title'],
       'admin' => array(
         'path' => 'admin/structure/chart/manage/%wac_chart_bundle',
         'real path' => 'admin/structure/chart/manage/' . $key,
@@ -58,6 +58,14 @@ function wac_menu() {
  /* $items['admin/structure/charts'] = array(
     
   );*/
+  $items['admin/content/charts'] = array(
+    'title' => 'Charts',
+    'page callback' => 'wac_admin_charts',
+    'access arguments' => array('administer web accessible charts'), 
+    'file' => 'wac.admin.inc',
+    'file path' => drupal_get_path('module', 'wac') . '/includes',
+    'type' => MENU_LOCAL_TASK
+  );
   $items['chart/%wac_chart_entity'] = array(
     'title' => 'Chart',
     'page callback' => 'wac_chart_entity_view',
@@ -72,6 +80,14 @@ function wac_menu() {
     'access arguments' => array('view web accessable charts'),
     'type' => MENU_LOCAL_TASK,
     'weight' => 1
+  );
+  $items['chart/add'] = array(
+    'title' => 'Create a Web Accessible Chart',
+    'page callback' => 'wac_chart_add_page',
+    'access arguments' => array('administer web accessible charts'),
+    'file' => 'wac.admin.inc',
+    'file path' => drupal_get_path('module', 'wac') . '/includes',
+    'type' => MENU_NORMAL_ITEM
   );
   $items['chart/add/%wac_chart_bundle'] = array(
     'title' => 'Chart',
@@ -315,9 +331,18 @@ function wac_chart_type_title($type) {
 
 function wac_get_chart_types() {
   return array(
-    'bar' => t('Bar Chart'),
-    'line' => t('Line Chart'),
-    'pie' => t('Pie Chart')
+    'bar' => array(
+      'title' => t('Bar Chart'),
+      'description' => t('Create a simple bar chart with two axes. A bar graph is a chart that uses either horizontal or vertical bars to show comparisons among categories. One axis of the chart shows the specific categories being compared, and the other axis represents a discrete value.')
+    ),
+    'line' => array(
+      'title' => t('Line Chart'),
+      'description' => t('Create a simple line chart with two axes. A line chart or line graph is a type of chart which displays information as a series of data points called "markers" connected by straight line segments.')
+    ),
+    'pie' => array(
+      'title' => t('Pie Chart'), 
+      'description' => t('Create a simple pie chart. A pie chart (or a circle chart) is a circular statistical graphic, which is divided into sectors to illustrate numerical proportion.')
+    )
   );
 }
 
