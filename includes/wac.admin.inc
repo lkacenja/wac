@@ -9,11 +9,6 @@ function wac_chart_add_page() {
   return array('#theme' => 'item_list','#items' => $links);
 }
 
-function wac_chart_type_admin_form($form, $form_state) {
-  // Core seems to need this form builder
-  return $form;
-}
-
 function wac_admin_charts() {
   $header = array(
     array('data' => t('Title'), 'field' => 'title'),
@@ -98,7 +93,7 @@ function wac_chart_base_form(&$form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Published'),
     '#description' => t('Should this chart be publicly available?'),
-    '#default_value' => !empty($chart->status) ? $chart->status : 1,
+    '#default_value' => isset($chart->status) ? $chart->status : 1,
     '#weight' => 10
   );
   $form['save'] = array(
