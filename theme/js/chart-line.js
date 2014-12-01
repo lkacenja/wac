@@ -17,7 +17,7 @@
     setup: function() {
       this._super();
       // Set svg width/height 
-      this.margin = {top: 0, right: 0, bottom: 25, left: 40};
+      this.margin = {top: 10, right: 0, bottom: 25, left: 50};
       this.width = parseInt(this.el.style('width'), 10) - this.margin.left - this.margin.right;
       this.height = parseInt(this.el.style('height'), 10) - this.margin.top - this.margin.bottom;
       this.svg.attr("width", this.width + this.margin.left + this.margin.right)
@@ -43,15 +43,32 @@
         .orient("bottom");
     },
     setupY: function() {
-      var _this = this;
+      var formatter,
+        _this = this,
+        format = this.dictionary.value_format[0];
       this.y = d3.scale.linear()
-        .range([this.height, 0])
-        .domain([0, d3.max(this.data, function(d) {
-          return parseFloat(d[_this.yKey]);
-        })]);
+        .range([this.height, 0]);
       this.yAxis = d3.svg.axis()
-        .scale(this.y)
         .orient("left");
+      switch(format) {
+        case 'percent':
+          this.y.domain([0, 1]);
+          this.yAxis.ticks(10, "%");
+          break;
+        case 'us_dollars':
+          formatter = d3.format("$,.2f");
+          this.yAxis.tickFormat(formatter);
+          this.y.domain([0, d3.max(this.data, function(d) {
+            return parseFloat(d[_this.yKey]);
+          })]);
+          break;
+        default:
+          this.y.domain([0, d3.max(this.data, function(d) {
+            return parseFloat(d[_this.yKey]);
+          })]);
+          break;
+      }
+      this.yAxis.scale(this.y); 
     },
     setLine: function() {
       var _this = this;

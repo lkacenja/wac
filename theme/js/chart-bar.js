@@ -15,11 +15,15 @@
       // Call the base classes setup defining the svg.
       this._super();
       // Set svg width/height 
-      this.margin = {top: 0, right: 0, bottom: 25, left: 40};
+      this.margin = {top: 10, right: 0, bottom: 25, left: 50};
       this.width = parseInt(this.el.style('width'), 10) - this.margin.left - this.margin.right;
       this.height = parseInt(this.el.style('height'), 10) - this.margin.top - this.margin.bottom;
       this.svg.attr("width", this.width + this.margin.left + this.margin.right)
         .attr("height", this.height + this.margin.top + this.margin.bottom); 
+      // Easy access keys
+      this.xKey = this.header[this.dictionary.x_axis[0]],
+      this.yKey = this.header[this.dictionary.y_axis[0]],
+      this.altKey = this.header[this.dictionary.data_field[0]];
       // Set up axes and scales
       this.setupX(); 
       this.setupY();
@@ -29,24 +33,39 @@
       this.x = d3.scale.ordinal()
         .rangeRoundBands([0, this.width], .1)
         .domain(this.data.map(function(d) {
-          var key = _this.header[_this.dictionary.x_axis[0]];
-          return d[key];
+          return d[_this.xKey];
         }));
       this.xAxis = d3.svg.axis()
         .scale(this.x)
         .orient("bottom");
     },
     setupY: function() {
-      var _this = this;
+      var formatter,
+        _this = this,
+        format = this.dictionary.value_format[0];
       this.y = d3.scale.linear()
-        .range([this.height, 0])
-        .domain([0, d3.max(this.data, function(d) {
-          var key = _this.header[_this.dictionary.y_axis[0]];
-          return parseFloat(d[key]);
-        })]);
+        .range([this.height, 0]);
       this.yAxis = d3.svg.axis()
-        .scale(this.y)
         .orient("left");
+      switch(format) {
+        case 'percent':
+          this.y.domain([0, 1]);
+          this.yAxis.ticks(10, "%");
+          break;
+        case 'us_dollars':
+          formatter = d3.format("$,.2f");
+          this.yAxis.tickFormat(formatter);
+          this.y.domain([0, d3.max(this.data, function(d) {
+            return parseFloat(d[_this.yKey]);
+          })]);
+          break;
+        default:
+          this.y.domain([0, d3.max(this.data, function(d) {
+            return parseFloat(d[_this.yKey]);
+          })]);
+          break;
+      }
+      this.yAxis.scale(this.y);
     },
     render: function() {
       var content,  _this = this;
@@ -71,29 +90,24 @@
         .append("rect")
         .attr("class", 'bar')
         .attr("x", function(d) { 
-          var key = _this.header[_this.dictionary.x_axis[0]];
-          return _this.x(d[key]);
+          return _this.x(d[_this.xKey]);
         })
         .attr("width", this.x.rangeBand())
         .attr("y", function(d) {
-          var key = _this.header[_this.dictionary.y_axis[0]];
-          return _this.y(d[key]);
+          return _this.y(d[_this.yKey]);
         })
         .attr("height", function(d) {
-          var key = _this.header[_this.dictionary.y_axis[0]];
-          return _this.height - _this.y(d[key]); 
+          return _this.height - _this.y(d[_this.yKey]); 
         })
         .attr("aria-labelledby", "title desc")
         .append("title").text(
           function(d) {
-            var key = _this.header[_this.dictionary.data_field[0]];
-            return d[key];
+            return d[_this.altKey];
           }
         )
         .attr('aria-label',
           function(d) {
-            var key = _this.header[_this.dictionary.data_field[0]];
-            return d[key];
+            return d[_this.altKey];
           }
         );
         content.selectAll('.bar')
