@@ -9,6 +9,11 @@ function wac_chart_add_page() {
   return array('#theme' => 'item_list','#items' => $links);
 }
 
+function wac_chart_type_admin_form($form, $form_state) {
+  // Core seems to need this form builder
+  return $form;
+}
+
 function wac_admin_charts() {
   $header = array(
     array('data' => t('Title'), 'field' => 'title'),
@@ -45,9 +50,25 @@ function wac_admin_charts() {
   return $output;
 }
 
-function wac_chart_type_admin_form() {
-
-  return array();
+function wac_chart_admin_types_page() {
+  if (!module_exists('field_ui')) {
+    return "Enable Field UI module for more options.";
+  } 
+  $bundles = wac_get_chart_types();
+  $header = array('Title', 'Operations');
+  $rows = array();
+  foreach ($bundles AS $key => $bundle) {
+    $rows[] = array(
+      $bundle['title'],
+      l('Manage Fields', 'admin/structure/chart/manage/' . $key  . '/fields') . ' | ' . l('Manage Display', 'admin/structure/chart/manage/' . $key . '/display')
+    );
+  }
+  $output['table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+  );
+  return $output;
 }
 
 function wac_chart_add($form, $form_state, $chart) {

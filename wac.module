@@ -55,9 +55,6 @@ function wac_entity_info() {
 
 function wac_menu() {
   $items = array();
- /* $items['admin/structure/charts'] = array(
-    
-  );*/
   $items['admin/content/charts'] = array(
     'title' => 'Charts',
     'page callback' => 'wac_admin_charts',
@@ -118,12 +115,10 @@ function wac_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 3
   );
-  $items['admin/structure/chart/manage/%wac_chart_bundle'] = array(
-    'title' => 'Administer Chart Type',
-    'title callback' => 'wac_chart_type_title',
-    'title arguments' => array(4),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wac_chart_type_admin_form', 4),
+  $items['admin/structure/charts'] = array(
+    'title' => 'Chart Types',  
+    'description' => 'Manage chart types, add and edit fields and manage displays.',
+    'page callback' => 'wac_chart_admin_types_page',
     'access arguments' => array('administer web accessible charts'),
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
