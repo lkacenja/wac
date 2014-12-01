@@ -44,6 +44,26 @@ function wac_chart_fields() {
     ),
     'display' => array(),
   );
+  $format_field = array(
+    'field_name' => 'value_format',
+    'type' => 'list_text',
+    'settings' => array(
+      'allowed_values' => wac_get_formats()
+    ),
+  );
+  $format_instance = array(
+    'field_name' => 'value_format',
+    'entity_type' => 'chart',
+    'bundle' => '',
+    'label' => t('Value Format'),
+    'description' => t('The format data values should use for display.'),
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'options_select',
+      'weight' => 4.5,
+    ),
+    'display' => array(),
+  );
   $data_field = array(
     'field_name' => 'data_field',
     'type' => 'text',
@@ -66,6 +86,9 @@ function wac_chart_fields() {
   $fields['bar']['alternate_description'] = array();
   $fields['bar']['alternate_description']['field'] = $description;
   $fields['bar']['alternate_description']['instance'] = array_merge($description_instance, array('bundle' => 'bar'));
+  $fields['bar']['value_format'] = array();
+  $fields['bar']['value_format']['field'] = $format_field;
+  $fields['bar']['value_format']['instance'] = array_merge($format_instance, array('bundle' => 'bar'));
   $fields['bar']['data_file'] = array();
   $fields['bar']['data_file']['field'] = $data_file;
   $fields['bar']['data_file']['instance'] = array_merge($data_file_instance, array('bundle' => 'bar'));
@@ -111,14 +134,17 @@ function wac_chart_fields() {
   $fields['pie']['alternate_description'] = array();
   $fields['pie']['alternate_description']['field'] = $description;
   $fields['pie']['alternate_description']['instance'] = array_merge($description_instance, array('bundle' => 'pie'));
+  $fields['pie']['value_format'] = array();
+  $fields['pie']['value_format']['field'] = $format_field;
+  $fields['pie']['value_format']['instance'] = array_merge($format_instance, array('bundle' => 'pie'));
   $fields['pie']['data_file'] = array();
   $fields['pie']['data_file']['field'] = $data_file;
   $fields['pie']['data_file']['instance'] = array_merge($data_file_instance, array('bundle' => 'pie'));
   $fields['pie']['data_field'] = array();
   $fields['pie']['data_field']['field'] = $data_field;
   $fields['pie']['data_field']['instance'] = array_merge($data_field_instance, array('bundle' => 'pie'));
-  $fields['pie']['percent']['field'] = array(
-    'field_name' => 'percent',
+  $fields['pie']['value']['field'] = array(
+    'field_name' => 'value',
     'type' => 'text',
   );
   $fields['pie']['value']['instance'] = array(
@@ -156,6 +182,9 @@ function wac_chart_fields() {
   $fields['line']['alternate_description'] = array();
   $fields['line']['alternate_description']['field'] = $description;
   $fields['line']['alternate_description']['instance'] = array_merge($description_instance, array('bundle' => 'line'));
+  $fields['line']['value_format'] = array();
+  $fields['line']['value_format']['field'] = $format_field;
+  $fields['line']['value_format']['instance'] = array_merge($format_instance, array('bundle' => 'line'));
   $fields['line']['data_file'] = array();
   $fields['line']['data_file']['field'] = $data_file;
   $fields['line']['data_file']['instance'] = array_merge($data_file_instance, array('bundle' => 'line'));

@@ -372,3 +372,19 @@ function wac_get_data_from_json_file($handle) {
   }
   return FALSE;
 }
+
+function wac_get_formats() {
+  return array(
+    'numeric' => t('Numeric'),
+    'percent' => t('Percent'),
+    'us_dollars' => t('US Dollars'),
+    'date' => t('Date (YYYY/MM/DD)')
+  );
+}
+
+function wac_chart_create($type) {
+  $chart = new StdClass();
+  $chart->type = $type;
+  $chart->is_new = TRUE;
+  return $chart;
+}
