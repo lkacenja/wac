@@ -378,7 +378,6 @@ function wac_get_formats() {
     'numeric' => t('Numeric'),
     'percent' => t('Percent'),
     'us_dollars' => t('US Dollars'),
-    'date' => t('Date (YYYY/MM/DD)')
   );
 }
 
