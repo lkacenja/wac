@@ -25,7 +25,7 @@
     setupPie: function() {
       var arcs, 
         _this = this,
-        dataKey = this.header[this.dictionary.percent[0]];
+        dataKey = this.header[this.dictionary.value[0]];
       // Store arc
       this.arc = d3.svg.arc()
         .outerRadius(this.radius - 10)
@@ -41,7 +41,7 @@
     },
     render: function() {
       var _this = this,
-      dataKey = _this.header[_this.dictionary.percent[0]],
+      dataKey = _this.header[_this.dictionary.value[0]],
       labelKey = _this.header[_this.dictionary.pie_label[0]],
       altKey = _this.header[_this.dictionary.data_field[0]];
       // Offset wrapper including margins
