@@ -1,5 +1,7 @@
 <?php
 
+require_once(drupal_get_path('module', 'wac') . '/includes/wac.pathauto.inc');
+
 function wac_permission() {
   return array(
     'view web accessable charts' => array(
@@ -40,6 +42,7 @@ function wac_entity_info() {
     'entity class' => 'Entity',
     'controller class' => 'EntityAPIController',
     'module' => 'wac',
+    'uri callback' => 'wac_entity_info_uri',
     'fieldable' => TRUE,
     'bundles' => array(),
     'bundle keys' => array(
@@ -65,6 +68,12 @@ function wac_entity_info() {
     );
   }
   return $info;
+}
+
+function wac_entity_info_uri($entity) {
+ return array(
+    'path' => 'chart/' . $entity->cid,
+  );
 }
 
 function wac_menu() {
@@ -191,6 +200,24 @@ function wac_library() {
   return array('d3' => $lib); 
 }
 
+function wac_entity_insert($entity, $type) {
+  if ($type == 'chart' && module_exists('pathauto')) {
+    wac_update_alias($entity, 'insert'); 
+  }
+}
+
+function wac_entity_update($entity, $type) {
+  if ($type == 'chart' && module_exists('pathauto')) {
+    wac_update_alias($entity, 'update');
+  }
+}
+
+function wac_entity_delete($entity, $type) {
+  if ($type == 'chart' && module_exists('pathauto')) {
+    pathauto_entity_path_delete_all('my_entity', $entity, "my_entity/{$entity->pid}");
+  }
+}
+
 /**
  * We provide two chart theme functions wac_chart_entity for viewing the whole fielded entity.
  *   and wac_chart for rendering purely the chart visualization.
@@ -304,7 +331,7 @@ function wac_chart_view_multiple($charts, $view_mode = 'full', $langcode = NULL)
 
 function wac_chart_view($chart, $view_mode = 'full', $langcode = NULL) {
   if (!isset($langcode)) {
-    // @TODO inestigate what should be done here.
+    // @TODO investigate what should be done here.
     $langcode = LANGUAGE_NONE;
   }
   wac_chart_build_content($chart, $view_mode, $langcode);
@@ -453,4 +480,74 @@ function wac_chart_create($type) {
   $chart->type = $type;
   $chart->is_new = TRUE;
   return $chart;
+}
+
+function wac_token_info() {
+  $type = array(
+    'name' => t('Web Accessible Charts'),
+    'description' => t('Tokens related to individual charts.'),
+    'needs-data' => 'chart',
+  );
+  $chart['cid'] = array(
+    'name' => t("Chart ID"),
+    'description' => t("The unique ID of the chart."),
+  );
+  $chart['title'] = array(
+    'name' => t("Title"),
+    'description' => t("The title of the chart."),
+  );
+  $chart['type'] = array(
+    'name' => t("Type"),
+    'description' => t("The type of the chart."),
+  );
+  $chart['created'] = array(
+    'name' => t("Date created"),
+    'description' => t("The date the chart was posted."),
+    'type' => 'date',
+  );
+  $chart['author'] = array(
+    'name' => t("Author"),
+    'description' => t("The author of the chart."),
+    'type' => 'user',
+  );
+  return array(
+    'types' => array('chart' => $type),
+    'tokens' => array('chart' => $chart),
+  );
+}
+
+function wac_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  if ($type == 'chart') {
+    $chart = $data['chart'];
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'cid':
+          $replacements[$original] = $chart->cid;
+          break;
+        case 'title':
+          $replacements[$original] = $chart->title;
+          break;
+        case 'type':
+          $replacements[$original] = $chart->type;
+          break;
+        case 'created':
+          $replacements[$original] = $chart->created;
+          break;
+        case 'author':
+          $account = user_load($chart->uid);
+          $name = format_username($account);
+          $replacements[$original] = $sanitize ? check_plain($name) : $name;
+          break;
+      }
+    }
+    if ($author_tokens = token_find_with_prefix($tokens, 'author')) {
+      $author = user_load($chart->uid);
+      $replacements += token_generate('user', $author_tokens, array('user' => $author), $options);
+    }
+    if ($created_tokens = token_find_with_prefix($tokens, 'created')) {
+      $replacements += token_generate('date', $created_tokens, array('date' => $chart->created), $options);
+    }
+  }
+  return $replacements;
 }
