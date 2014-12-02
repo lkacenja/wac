@@ -53,7 +53,9 @@ function wac_entity_info() {
         'label' => t('Full chart'),
         'custom settings' => FALSE,
       ),
-    )
+    ),
+    // Despite not being listed anywhere entity_access checks for a manditory access callback on the instance (not the bundle).
+    'access callback' => 'wac_entity_access_check',
   );
   $bundles = wac_get_chart_types();
   foreach ($bundles AS $key => $name) {
@@ -63,7 +65,7 @@ function wac_entity_info() {
         'path' => 'admin/structure/chart/manage/%wac_chart_bundle',
         'real path' => 'admin/structure/chart/manage/' . $key,
         'bundle argument' => 4,
-        'access arguments' => array('administer web accessible charts'),
+        'access callback' => 'wac_entity_access_check',
       ), 
     );
   }
@@ -180,6 +182,13 @@ function wac_access_check($chart, $op) {
         return user_access('delete own web accessible charts'); 
       }
     break;
+  }
+}
+
+function wac_entity_access_check() {
+  watchdog('pundant', 'flooom');
+  if (user_access('view web accessable charts') || user_access('administer web accessible charts')) {
+    return TRUE;
   }
 }
 
