@@ -79,6 +79,19 @@ function wac_install() {
   }  
 }
 
+function wac_uninstall() {
+  // Delete any random vars
+  variable_del('wac_d3_lib');
+  // Remove fields
+  drupal_load('module', 'wac');
+  $bundles = wac_get_chart_types();
+  module_load_include('inc', 'wac', 'includes/wac.fields');
+  $fields = wac_chart_fields();
+  foreach ($bundles AS $type => $title) {
+    wac_delete_bundle_fields($type, $fields);
+  }
+}
+
 function wac_save_bundle_fields($bundle, $fields) {
   if (!empty($fields[$bundle])) {
     foreach ($fields[$bundle] AS $field) {
@@ -89,6 +102,17 @@ function wac_save_bundle_fields($bundle, $fields) {
       $instance = field_info_instance('chart', $field['field']['field_name'], $bundle);
       if (empty($instance)) {
         field_create_instance($field['instance']);
+      }
+    }
+  }
+}
+
+function wac_delete_bundle_fields($bundle, $fields) {
+  if (!empty($fields[$bundle])) {
+    foreach ($fields[$bundle] AS $field) {
+      $instance = field_info_instance('chart', $field['field']['field_name'], $bundle);
+      if (empty($instance)) {
+        field_delete_field($field['field']['field_name']);
       }
     }
   }
