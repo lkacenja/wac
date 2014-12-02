@@ -89,13 +89,21 @@ function wac_chart_base_form(&$form, $form_state) {
     '#default_value' => !empty($chart->title) ? $chart->title : '',
     '#weight' => -1
   );
-  $form['status'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Published'),
-    '#description' => t('Should this chart be publicly available?'),
-    '#default_value' => isset($chart->status) ? $chart->status : 1,
-    '#weight' => 10
-  );
+  if (user_access('administer web accessible charts') || user_access('publish web accessible charts')) {
+    $form['status'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Published'),
+      '#description' => t('Should this chart be publicly available?'),
+      '#default_value' => isset($chart->status) ? $chart->status : 1,
+      '#weight' => 10
+    );
+  }
+  else {
+    $form['status'] = array(
+      '#type' => 'hidden',
+      '#value' => FALSE
+    );
+  }
   $form['save'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),

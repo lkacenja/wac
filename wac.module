@@ -10,6 +10,10 @@ function wac_permission() {
       'title' => t('Create Web Accessible Charts'),
       'description' => t('Basic permission for creating charts.')
     ),
+    'publish web accessible charts' => array(
+      'title' => t('Publish Web Accessible Charts'),
+      'description' => t('Permission just to publish or unpublish charts.')
+    ),
     'edit own web accessible charts' => array(
       'title' => t('Edit own web accessible charts'),
     ),
