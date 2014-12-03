@@ -155,6 +155,13 @@ function wac_menu() {
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_NORMAL_ITEM
   );
+  $items['chart/help'] = array(
+    'title' => 'Web Accessible Charts (WAC) Help',
+    'page callback' => 'wac_chart_help',
+    'access callback' => 'wac_entity_access_check',
+    'access arguments' => array(1, 'view'),
+    'type' => MENU_NORMAL_ITEM
+  );
   return $items;
 }
 
@@ -190,6 +197,10 @@ function wac_entity_access_check() {
   if (user_access('view web accessable charts') || user_access('administer web accessible charts')) {
     return TRUE;
   }
+}
+
+function wac_chart_help() {
+  return array('#theme' => 'wac_help');
 }
 
 function wac_d3_lib() {
@@ -241,6 +252,11 @@ function wac_theme($existing, $type, $theme, $path) {
     'wac_chart' => array(
       'path' => $path . '/theme',
       'template' => 'wac-chart',
+      'render element' => 'elements'
+    ),
+    'wac_help' => array(
+      'path' => $path . '/theme',
+      'template' => 'wac-help',
       'render element' => 'elements'
     )
   ); 
