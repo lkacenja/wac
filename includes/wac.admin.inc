@@ -82,6 +82,12 @@ function wac_chart_add($form, $form_state, $chart) {
 
 function wac_chart_base_form(&$form, $form_state) {
   $chart = $form_state['storage']['chart'];
+  $help_link = l('help page', 'chart/help', array('fragment' => 'creating'));
+  $form['help'] = array(
+    '#type' => 'item',
+    '#markup' => t('If you need help getting started, try reading the !help.', array('!help' => $help_link)),
+    '#weight' => -2
+  );
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title:'),
