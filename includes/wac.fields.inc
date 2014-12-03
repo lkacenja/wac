@@ -134,9 +134,6 @@ function wac_chart_fields() {
   $fields['pie']['alternate_description'] = array();
   $fields['pie']['alternate_description']['field'] = $description;
   $fields['pie']['alternate_description']['instance'] = array_merge($description_instance, array('bundle' => 'pie'));
-  $fields['pie']['value_format'] = array();
-  $fields['pie']['value_format']['field'] = $format_field;
-  $fields['pie']['value_format']['instance'] = array_merge($format_instance, array('bundle' => 'pie'));
   $fields['pie']['data_file'] = array();
   $fields['pie']['data_file']['field'] = $data_file;
   $fields['pie']['data_file']['instance'] = array_merge($data_file_instance, array('bundle' => 'pie'));
