@@ -220,14 +220,26 @@ function wac_library() {
   return array('d3' => $lib); 
 }
 
+/**
+ * We need to set the default pattern for charts if it's not present.
+ *  Otherwise the pattern form must be saved before url aliases are acknowleged.
+ */
+function wac_pathauto_set_default_pattern() {
+  if (!variable_get('pathauto_chart_pattern', FALSE)) {
+    variable_set('pathauto_chart_pattern', 'chart/[chart:title]');
+  }
+}
+
 function wac_entity_insert($entity, $type) {
   if ($type == 'chart' && module_exists('pathauto')) {
+    wac_pathauto_set_default_pattern();
     wac_update_alias($entity, 'insert'); 
   }
 }
 
 function wac_entity_update($entity, $type) {
   if ($type == 'chart' && module_exists('pathauto')) {
+    wac_pathauto_set_default_pattern();
     wac_update_alias($entity, 'update');
   }
 }

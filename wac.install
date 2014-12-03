@@ -82,6 +82,7 @@ function wac_install() {
 function wac_uninstall() {
   // Delete any random vars
   variable_del('wac_d3_lib');
+  variable_del('pathauto_chart_pattern');
   // Remove fields
   drupal_load('module', 'wac');
   $bundles = wac_get_chart_types();
