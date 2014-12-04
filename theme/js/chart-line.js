@@ -1,4 +1,4 @@
-(function ($, Drupal, window, document, undefined) {
+(function (Class, Drupal) {
   /**
    * Class to create a very basic line chart.
    *   Class presumes an ordinal, bottom x axis and a linear left y axis.
@@ -120,4 +120,4 @@
         .append("desc");
     }   
   });
-})(jQuery, Drupal, this, this.document);
+})(Class, Drupal);

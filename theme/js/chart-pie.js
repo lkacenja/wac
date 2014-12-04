@@ -1,4 +1,4 @@
-(function ($, Drupal, window, document, undefined) {
+(function (Class, Drupal) {
   /**
    * Class to render a super simple pie chart.
    */
@@ -84,4 +84,4 @@
         .attr("aria-hidden", "true");
     }
   });
-})(jQuery, Drupal, this, this.document);
+})(Class, Drupal);

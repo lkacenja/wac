@@ -1,4 +1,4 @@
-(function ($, Drupal, window, document, undefined) {
+(function (Class, Drupal) {
   /**
    * Class to create a very basic bar chart.
    *   Class presumes an ordinal, bottom x axis and a linear left y axis.
@@ -114,4 +114,4 @@
           .append('desc').text('');
     } 
   });
-})(jQuery, Drupal, this, this.document);
+})(Class, Drupal);

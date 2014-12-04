@@ -1,18 +1,16 @@
-(function ($, Drupal, window, document, undefined) {
+(function (Class, Drupal) {
   Drupal.behaviors.Wac = {
     attach: function() {
       if (Drupal.settings.wac) {
+        var x, element, chart;
         for (var x in Drupal.settings.wac) {
-          $("#" + Drupal.settings.wac[x].id).once('wac-chart',
-            function() {
-              var chart;
-              if (Drupal.Wac[Drupal.settings.wac[x].class]) {
-                chart = new Drupal.Wac[Drupal.settings.wac[x].class](Drupal.settings.wac[x]);
-                chart.setup();
-                chart.render();
-              }
-            }
-          );
+            element = document.getElementById(Drupal.settings.wac[x].id);
+          if ((' ' + element.className + ' ').indexOf(' ' + 'wac-chart-processed' + ' ') < 0) {
+            chart = new Drupal.Wac[Drupal.settings.wac[x].class](Drupal.settings.wac[x]);
+            chart.setup();
+            chart.render();
+            element.className += ' wac-chart-processed';
+          }
         }
       }
     },
@@ -20,4 +18,4 @@
 
     }
   };
-})(jQuery, Drupal, this, this.document);
+})(Class, Drupal);

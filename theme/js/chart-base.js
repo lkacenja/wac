@@ -1,4 +1,4 @@
-(function ($, Drupal, window, document, undefined) {
+(function (Class, Drupal) {
   // Establish namespace
   Drupal.Wac = Drupal.Wac || {};
   // Provide base chart class
@@ -55,4 +55,4 @@
       this.svg.selectAll("*").remove(); 
     }
   });
-})(jQuery, Drupal, this, this.document);
+})(Class, Drupal);
