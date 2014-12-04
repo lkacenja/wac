@@ -162,6 +162,14 @@ function wac_menu() {
     'access arguments' => array(1, 'view'),
     'type' => MENU_NORMAL_ITEM
   );
+  $items['chart/%wac_chart_entity/embed.js'] = array(
+    'title' => 'Web Accessible Charts (WAC) Help',
+    'page callback' => 'wac_chart_embed_script',
+    'page arguments' => array(1),
+    'access callback' => 'wac_entity_access_check',
+    'access arguments' => array(1, 'view'),
+    'type' => MENU_NORMAL_ITEM
+  );
   return $items;
 }
 
@@ -270,6 +278,11 @@ function wac_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'template' => 'wac-help',
       'render element' => 'elements'
+    ),
+    'wac_chart_embed' => array(
+      'path' => $path . '/theme',
+      'template' => 'wac-chart-embed',
+      'render element' => 'elements'
     )
   ); 
 }
@@ -321,7 +334,43 @@ function template_preprocess_wac_chart(&$variables) {
       break;
   }
   drupal_add_js($path . '/theme/js/chart-behavior.js', array('type' => 'file', 'group' => JS_DEFAULT));
-  wac_chart_add_settings($chart, $variables['chart_id'], $langcode);
+  $settings = wac_chart_add_settings($chart, $variables['chart_id'], $langcode);
+  drupal_add_js(array('wac' => array($settings)), array('type' => 'setting'));
+}
+
+function template_preprocess_wac_chart_embed(&$variables) {
+  $chart = $variables['elements']['#chart'];
+  $d3 = drupal_get_library('wac', 'd3');
+  $files = array();
+  $module_path = drupal_get_path('module', 'wac');
+  $files[] = file_create_url($module_path . '/theme/css/wac.css');
+  if (!empty($d3)) {
+    foreach($d3['js'] AS $path => $options) {
+      $files[] =  file_create_url($path);
+      break;
+    }
+  }
+  $files[] = file_create_url($module_path . '/theme/js/class.js');
+  $files[] = file_create_url($module_path . '/theme/js/chart-base.js');
+  switch($chart->type) {
+    case 'bar':
+      $chart->js_class = 'ChartBar';
+      $files[] = file_create_url($module_path . '/theme/js/chart-bar.js');
+      break;
+    case 'line':
+      $chart->js_class = 'ChartLine';
+      $files[] = file_create_url($module_path . '/theme/js/chart-line.js');
+      break;
+    case 'pie':
+      $chart->js_class = 'ChartPie';
+      $files[] = file_create_url($module_path . '/theme/js/chart-pie.js');
+      break;
+  }
+  $files[] = file_create_url($module_path . '/theme/js/chart-behavior.js');
+  $chart_id = 'wac-' . $chart->cid;
+  $settings = wac_chart_add_settings($chart, $chart_id, LANGUAGE_NONE);
+  $variables['elements']['#files'] = json_encode($files);
+  $variables['elements']['#settings'] = json_encode(array($settings));
 }
 
 function wac_chart_add_settings($chart, $id, $l) {
@@ -349,7 +398,7 @@ function wac_chart_add_settings($chart, $id, $l) {
   $settings['dictionary']['type'] = $chart->type;
   // Data contains the actual data to render.
   $settings['data'] = wac_get_data_from_file($chart->data_file[$l][0]);
-  drupal_add_js(array('wac' => array($settings)), array('type' => 'setting'));
+  return $settings;
 }
 
 function wac_chart_entity_view($chart) {
@@ -405,6 +454,15 @@ function wac_chart_build_content($chart, $view_mode, $langcode) {
   // Let folks alter chart with hook_entity_view
   module_invoke_all('entity_view', $chart, 'chart', $view_mode, $langcode);
   $chart->content += array('#view_mode' => $view_mode);
+}
+
+function wac_chart_embed_script($chart) {
+  $render = array(
+    '#theme' => 'wac_chart_embed',
+    '#chart' => $chart
+  );
+  header('Content-Type: application/javascript');
+  print drupal_render($render);
 }
 
 function wac_chart_entity_delete($chart) {
