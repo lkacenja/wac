@@ -172,3 +172,24 @@ function wac_chart_delete_confirm_submit($form, $form_state) {
   $chart = json_decode($form['chart']['#value']);
   wac_chart_entity_delete($chart); 
 }
+
+function wac_chart_embed_form($form, $form_state, $chart) {
+  $form['instructions'] = array(
+    '#type' => 'item',
+    '#markup' => t('To embed a chart in your website copy the two snippets below and place them in your html.')
+  );
+  $id = 'wac-' . $chart->cid;
+  $form['html'] = array(
+    '#type' => 'textarea',
+    '#value' => "<div id='$id'></div>",
+    '#description' => t('Insert this div tag where you want the chart to appear. It\'s dimensions are controlled by the width and height of this element.')
+  );
+  global $base_url;
+  $url = $base_url . '/chart/' . $chart->cid . '/embed.js'; 
+  $form['js'] = array(
+    '#type' => 'textarea',
+    '#value' => "<script type='text/html' src='$url'></script>",
+    '#description' => t('Include this javascript file in the header or footer of your document.')
+  ); 
+  return $form;
+}

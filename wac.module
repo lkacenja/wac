@@ -22,6 +22,9 @@ function wac_permission() {
     'delete own web accessible charts' => array(
       'title' => t('Delete own web accessible charts'),
     ),
+    'embed web accessible charts' => array(
+      'title' => t('Embed web accessible charts'),
+    ),
     'administer web accessible charts' => array(
       'title' => t('Administer web accessible charts.'),
       'description' => t('Create and manipulate charts created by the Web Accesible Charts module.'),
@@ -124,6 +127,16 @@ function wac_menu() {
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_NORMAL_ITEM
   );
+  $items['chart/%wac_chart_entity/embed'] = array(
+    'title' => 'Embed Chart',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wac_chart_embed_form', 1),
+    'access arguments' => array('embed web accessible charts'),
+    'file' => 'wac.admin.inc',
+    'file path' => drupal_get_path('module', 'wac') . '/includes',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2
+  );
   $items['chart/%wac_chart_entity/edit'] = array(
     'title' => 'Edit Chart',
     'page callback' => 'drupal_get_form',
@@ -133,7 +146,7 @@ function wac_menu() {
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_LOCAL_TASK,
-    'weight' => 2
+    'weight' => 3
   ); 
   $items['chart/%wac_chart_entity/delete'] = array(
     'title' => 'Delete Chart',
@@ -144,7 +157,7 @@ function wac_menu() {
     'file' => 'wac.admin.inc',
     'file path' => drupal_get_path('module', 'wac') . '/includes',
     'type' => MENU_LOCAL_TASK,
-    'weight' => 3
+    'weight' => 4
   );
   $items['admin/structure/charts'] = array(
     'title' => 'Chart Types',  
@@ -166,8 +179,7 @@ function wac_menu() {
     'title' => 'Web Accessible Charts (WAC) Help',
     'page callback' => 'wac_chart_embed_script',
     'page arguments' => array(1),
-    'access callback' => 'wac_entity_access_check',
-    'access arguments' => array(1, 'view'),
+    'access arguments' => array('embed web accessible charts'),
     'type' => MENU_NORMAL_ITEM
   );
   return $items;
