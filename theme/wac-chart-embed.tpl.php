@@ -1,7 +1,7 @@
 Drupal = window.Drupal || {};
 (function(Drupal) {
-  Drupal.settings = {};
-  Drupal.behaviors = {};
+  Drupal.settings = Drupal.settings || {};
+  Drupal.behaviors = Drupal.settings || {};
   files = <?php print $elements['#files']; ?>,
   lcount = 0,
   fcount = files.length;
