@@ -181,7 +181,7 @@ function wac_chart_embed_form($form, $form_state, $chart) {
   $id = 'wac-' . $chart->cid;
   $form['html'] = array(
     '#type' => 'textarea',
-    '#value' => "<div id='$id'></div>",
+    '#value' => "<div id='$id' class='wac-chart'></div>",
     '#description' => t('Insert this div tag where you want the chart to appear. It\'s dimensions are controlled by the width and height of this element.')
   );
   global $base_url;
