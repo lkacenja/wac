@@ -105,7 +105,7 @@ function wac_menu() {
     'page arguments' => array(1),
     'access callback' => 'wac_access_check',
     'access arguments' => array(1, 'view'),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 1
   );
   $items['chart/add'] = array(
