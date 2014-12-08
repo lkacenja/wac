@@ -1,7 +1,7 @@
 Drupal = window.Drupal || {};
 (function(Drupal) {
   Drupal.settings = Drupal.settings || {};
-  Drupal.behaviors = Drupal.settings || {};
+  Drupal.behaviors = Drupal.behaviors || {};
   files = <?php print $elements['#files']; ?>,
   lcount = 0,
   fcount = files.length;
@@ -40,7 +40,12 @@ Drupal = window.Drupal || {};
     }
   }
   function init() {
-    Drupal.behaviors.Wac.attach(); 
+    if (typeof Drupal.behaviors.wac == 'function') {
+      Drupal.behaviors.wac();
+    }
+    else {
+      Drupal.behaviors.wac.attach(); 
+    }
   }
   document.addEventListener('DOMContentLoaded', function(event) {
     loadFile(files[0], checkLoad); 
