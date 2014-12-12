@@ -68,7 +68,7 @@ function wac_chart_admin_types_page() {
 
 function wac_chart_add($form, $form_state, $chart) {
   if (empty($chart->cid)) {
-    drupal_set_title(t('Create !type', array('!type' => $chart->title)));
+    drupal_set_title(t('Create !type chart', array('!type' => $chart->type)));
     $chart = entity_create('chart', array('type' => $chart->type)); 
   }
   else {
